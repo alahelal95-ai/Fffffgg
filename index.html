@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডায়নামিক অর্ডার কাউন্টার ক্যালকুলেটর (স্মার্ট শেয়ার)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            padding: 12px;
+            margin: 0;
+            color: #334155;
+        }
+        .container {
+            max-width: 500px;
+            margin: 10px auto;
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #1e293b;
+            font-size: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .field-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        .field-group input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f8fafc;
+            transition: all 0.3s;
+        }
+        .field-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: #fff;
+        }
+        .size-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .size-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            gap: 8px;
+        }
+        .size-row:last-child {
+            border-bottom: none;
+        }
+        .size-info-block {
+            display: flex;
+            flex-direction: column;
+            width: 65px;
+            flex-shrink: 0;
+        }
+        .size-label-input {
+            font-weight: bold;
+            font-size: 15px;
+            color: #1e293b;
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 2px 0;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        .size-label-input:focus {
+            outline: none;
+            border-bottom: 1px solid #3b82f6;
+            background: #fff;
+        }
+        .entry-count {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .size-total-box {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            background: #e2e8f0;
+            padding: 8px 0;
+            border-radius: 8px;
+            width: 50px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .adder-input {
+            width: 55px;
+            padding: 8px 4px;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #1e293b;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .adder-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .btn-touch-space {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 0;
+            width: 55px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+        .btn-undo {
+            background-color: #ffedd5;
+            color: #ea580c;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            padding: 8px 0;
+            width: 38px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .btn-delete {
+            background-color: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 8px 0;
+            width: 38px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .btn-add-size {
+            width: 100%;
+            padding: 12px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .grand-total-card {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .grand-total-val {
+            font-size: 24px;
+        }
+        .sub-total-line {
+            font-size: 12px;
+            color: #bfdbfe;
+            text-align: right;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 4px;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-share {
+            padding: 12px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-reset {
+            padding: 12px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Dynamic Order Counter Sheet</h2>
+    
+    <div class="info-section">
+        <div class="field-group">
+            <label>Style</label>
+            <input type="text" id="info-style" placeholder="Style no">
+        </div>
+        <div class="field-group">
+            <label>Buyer</label>
+            <input type="text" id="info-buyer" placeholder="Buyer name">
+        </div>
+        <div class="field-group">
+            <label>Factory</label>
+            <input type="text" id="info-factory" placeholder="Factory name">
+        </div>
+        <div class="field-group">
+            <label>Body Color</label>
+            <input type="text" id="info-color" placeholder="Color">
+        </div>
+        <!-- নতুন ৩টি অপশন এখানে ডাইনামিকভাবে সেট করা হয়েছে -->
+        <div class="field-group">
+            <label>Challan No</label>
+            <input type="text" id="info-challan" placeholder="Challan no">
+        </div>
+        <div class="field-group">
+            <label>Bundle No</label>
+            <input type="text" id="info-bundle" placeholder="Bundle no">
+        </div>
+        <div class="field-group full-width">
+            <label>Line No</label>
+            <input type="text" id="info-line" placeholder="Line no">
+        </div>
+        <div class="field-group full-width">
+            <label>Date</label>
+            <input type="date" id="info-date">
+        </div>
+    </div>
+
+    <button class="btn-add-size" onclick="addNewSizeRow()">+ নতুন সাইজ যোগ করুন</button>
+
+    <div class="size-card" id="size-container">
+    </div>
+
+    <div class="grand-total-card">
+        <div class="total-line">
+            <span>Grand Total:</span>
+            <span class="grand-total-val" id="grand-total">0</span>
+        </div>
+        <div class="sub-total-line" id="grand-times">সর্বমোট এন্ট্রি: ০ বার</div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn-share" onclick="sharePDF()">🔗 Share PDF</button>
+        <button class="btn-reset" onclick="resetAll()">❌ Reset All</button>
+    </div>
+</div>
+
+<script>
+    let sizeData = {};
+    let rowCounter = 0;
+
+    function addNewSizeRow(defaultLabel = "New") {
+        rowCounter++;
+        let id = rowCounter;
+        sizeData[id] = { qty: 0, times: 0, lastEntries: [] };
+
+        let container = document.getElementById('size-container');
+        if (!container) return;
+        
+        let row = document.createElement('div');
+        row.className = 'size-row';
+        row.id = `row-${id}`;
+        row.innerHTML = `
+            <div class="size-info-block">
+                <input type="text" class="size-label-input" id="label-${id}" value="${defaultLabel}">
+                <span class="entry-count" id="count-${id}">০ বার এন্ট্রি</span>
+            </div>
+            <div class="size-total-box" id="current-${id}">0</div>
+            <input type="number" class="adder-input" id="input-${id}" placeholder="0">
+            <button class="btn-touch-space" onclick="triggerAdd(${id})">ADD</button>
+            <button class="btn-undo" onclick="undoQty(${id})">↺</button>
+            <button class="btn-delete" onclick="deleteSizeRow(${id})">❌</button>
+        `;
+        
+        container.appendChild(row);
+        calculateGrandTotal();
+    }
+
+    function triggerAdd(id) {
+        let inputElement = document.getElementById(`input-${id}`);
+        let enterValue = parseInt(inputElement.value);
+        
+        if (!isNaN(enterValue) && enterValue !== 0) {
+            sizeData[id].qty += enterValue; 
+            sizeData[id].times += 1;
+            sizeData[id].lastEntries.push(enterValue);
+            
+            document.getElementById(`current-${id}`).innerText = sizeData[id].qty;
+            document.getElementById(`count-${id}`).innerText = sizeData[id].times + " বার এন্ট্রি";
+        }
+        
+        inputElement.value = '';
+        calculateGrandTotal();
+        inputElement.focus();
+    }
+
+    function deleteSizeRow(id) {
+        if(confirm("আপনি কি এই সাইজটি ডিলিট করতে চান?")) {
+            let row = document.getElementById(`row-${id}`);
+            if(row) row.remove();
+            delete sizeData[id]; 
+            calculateGrandTotal();
+        }
+    }
+
+    function undoQty(id) {
+        if (sizeData[id].lastEntries.length > 0) {
+            let lastValue = sizeData[id].lastEntries.pop();
+            sizeData[id].qty -= lastValue;
+            sizeData[id].times -= 1;
+            
+            document.getElementById(`current-${id}`).innerText = sizeData[id].qty;
+            document.getElementById(`count-${id}`).innerText = sizeData[id].times + " বার এন্ট্রি";
+            
+            calculateGrandTotal();
+        } else {
+            alert("এই সাইজে রিমুভ করার মতো কোনো এন্ট্রি নেই!");
+        }
+    }
+
+    function calculateGrandTotal() {
+        let totalQty = 0;
+        let totalTimes = 0;
+        for (let id in sizeData) {
+            totalQty += sizeData[id].qty;
+            totalTimes += sizeData[id].times;
+        }
+        let grandTotalEl = document.getElementById('grand-total');
+        let grandTimesEl = document.getElementById('grand-times');
+        if(grandTotalEl) grandTotalEl.innerText = totalQty;
+        if(grandTimesEl) grandTimesEl.innerText = "সর্বমোট এন্ট্রি: " + totalTimes + " বার";
+    }
+
+    function initDefaultSizes() {
+        addNewSizeRow('S');
+        addNewSizeRow('M');
+        addNewSizeRow('L');
+    }
+
+    function resetAll() {
+        if(confirm("আপনি কি নিশ্চিত যে সব ডাটা মুছে ফেলবেন?")) {
+            let container = document.getElementById('size-container');
+            if(container) container.innerHTML = '';
+            sizeData = {};
+            rowCounter = 0;
+            initDefaultSizes();
+            
+            let textInputs = document.querySelectorAll('.info-section input');
+            textInputs.forEach(input => input.value = '');
+        }
+    }
+
+    // পিডিএফ তৈরি ও স্মার্ট শেয়ার/ডাউনলোড ফাংশন
+    function sharePDF() {
+        let style = document.getElementById('info-style').value || '-';
+        let buyer = document.getElementById('info-buyer').value || '-';
+        let factory = document.getElementById('info-factory').value || '-';
+        let color = document.getElementById('info-color').value || '-';
+        let challan = document.getElementById('info-challan').value || '-';
+        let bundle = document.getElementById('info-bundle').value || '-';
+        let line = document.getElementById('info-line').value || '-';
+        let date = document.getElementById('info-date').value || '-';
+
+        let pdfContent = `
+            <div style="font-family: Arial, sans-serif; padding: 25px; color: #333;">
+                <h1 style="text-align: center; color: #1e293b; margin-bottom: 5px;">Order Counter Sheet Report</h1>
+                <p style="text-align: center; font-size: 12px; color: #64748b; margin-top: 0;">Generated Automatically</p>
+                <hr style="border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;">
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold; width: 25%;">Style no:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${style}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold; width: 25%;">Buyer Name:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${buyer}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Factory Name:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${factory}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Body Color:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${color}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Challan No:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${challan}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Bundle No:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${bundle}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Line No:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${line}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: bold;">Date:</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${date}</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #1e293b; margin-bottom: 10px;">Size & Quantity Summary</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;">
+                    <thead>
+                        <tr style="background-color: #3b82f6; color: white;">
+                            <th style="padding: 10px; border: 1px solid #cbd5e1;">Size Name</th>
+                            <th style="padding: 10px; border: 1px solid #cbd5e1;">Total Quantity</th>
+                            <th style="padding: 10px; border: 1px solid #cbd5e1;">Entry Count (বার)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        let totalQty = 0;
+        let totalTimes = 0;
+
+        for (let id in sizeData) {
+            let sizeLabel = document.getElementById(`label-${id}`).value || 'New';
+            let qty = sizeData[id].qty;
+            let times = sizeData[id].times;
+            totalQty += qty;
+            totalTimes += times;
+
+            pdfContent += `
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1; font-weight: bold; background: #f8fafc;">${sizeLabel}</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1; font-size: 16px; font-weight: bold; color: #111827;">${qty}</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1; color: #4b5563;">${times} বার</td>
+                </tr>
+            `;
+        }
+
+        pdfContent += `
+                        <tr style="background-color: #e2e8f0; font-weight: bold; font-size: 15px;">
+                            <td style="padding: 12px; border: 1px solid #cbd5e1; color: #1e293b;">Grand Total</td>
+                            <td style="padding: 12px; border: 1px solid #cbd5e1; font-size: 18px; color: #2563eb;">${totalQty}</td>
+                            <td style="padding: 12px; border: 1px solid #cbd5e1; color: #1e293b;">${totalTimes} বার এন্ট্রি</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        let fileName = 'Order_Report_' + (style !== '-' ? style : 'Document') + '.pdf';
+        
+        let opt = {
+            margin:       10,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // পিডিএফ জেনারেট করা হচ্ছে
+        let element = html2pdf().set(opt).from(pdfContent);
+
+        // ব্রাউজারের শেয়ার সিস্টেম সাপোর্ট চেক এবং এরর হ্যান্ডলিং ট্রিক
+        element.outputPdf('blob').then(function(pdfBlob) {
+            let file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    files: [file],
+                    title: 'Order Counter Sheet Report',
+                    text: 'অর্ডার কাউন্টার শীটের পিডিএফ রিপোর্ট।'
+                })
+                .catch((err) => {
+                    element.save();
+                });
+            } else {
+                element.save();
+            }
+        }).catch(function(){
+            html2pdf().set(opt).from(pdfContent).save();
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        initDefaultSizes();
+    });
+</script>
+
+</body>
+</html>
